@@ -51,7 +51,6 @@ bool role = 1;
 */
 struct dataStruct{
   unsigned long _micros;
-  //int base_speed;
   int control_key;
   int value;
   
@@ -66,15 +65,12 @@ int base_speed=200;
 boolean go=false;
 String inText;
 void setup() {
-
-  //pinMode(5,OUTPUT);
   pinMode(LeftMotorForward, OUTPUT);  // initialize the  pin as an output.
   pinMode(RightMotorForward, OUTPUT);  // initialize the  pin as an output.
   Serial.begin(9600);
   Serial.flush();
-  Serial.println(F("RF24/examples/GettingStarted_HandlingData"));
-  Serial.println(F("*** PRESS 'T' to begin transmitting to the other node"));
-  
+  Serial.println(F("Initating Radio Setup"));
+
   radio.begin();
 
   // Set the PA Level low to prevent power supply related issues since this is a
@@ -184,21 +180,13 @@ void set_digitalwrite(int pin_num, int pin_value)
 {
   switch (pin_num) {
   case 13:
-    //pinMode(13, OUTPUT);
-    //digitalWrite(13, pin_value);   
-    go=false;
-     //digitalWrite(RightMotorForward, LOW);   // turn the Right Motor OFF
-     //digitalWrite(LeftMotorForward, LOW);   // turn the Left Motor OFF
+  	go=false;
 	ControlData.control_key= 13;
 	send_wait_for_resp(ControlData);
     break;
   case 12:
-    //pinMode(12, OUTPUT);
-    //digitalWrite(12, pin_value);   
-    go=true;
-    //digitalWrite(RightMotorForward, HIGH);   // turn the Right Motor ON
-   //digitalWrite(LeftMotorForward, HIGH);   // turn the Left Motor ON
-	ControlData.control_key= 12;
+    	go=true;
+    	ControlData.control_key= 12;
 	send_wait_for_resp(ControlData);
     break;
   case 11:
@@ -207,8 +195,6 @@ void set_digitalwrite(int pin_num, int pin_value)
     // add your code here 
     break;
   case 10:
-    //pinMode(10, OUTPUT);
-    //digitalWrite(10, pin_value);         
     ControlData.control_key=10;
     ControlData.value=0;
     analogWrite(RightMotorForward,base_speed);
@@ -272,11 +258,10 @@ void motor_control(int control_key, int value)
   * Motor control using the L293D (H-bridge)	
   *
   */
-	//int count =0; 
-        radio.flush_tx();
 	switch(control_key){
 		case 6: // speed control, PWM'ing the enable pin for both motors
-		break;
+		break; // gave me issues so i blocked it
+		/*
                     int oldBsp;
                          oldBsp=base_speed;
                         base_speed=value;
@@ -294,7 +279,7 @@ void motor_control(int control_key, int value)
 			ControlData._micros = micros();
                         Serial.println("Gathered Micros");
                         send_wait_for_resp(ControlData);
-			
+		*/	
 			break;
 
 		case 9: // turn left, lower speed of left wheel
@@ -321,21 +306,14 @@ void motor_control(int control_key, int value)
                   break;
 
 	}
-//delay(50);
 
 }
 
 void send_wait_for_resp(struct dataStruct &ControlData)
 {
-  //delay(50);
   if (!radio.write( &ControlData, sizeof(ControlData) )){
        Serial.println(F("failed"));
-        //pinMode(5,OUTPUT);
-        //delay(5);
-        //digitalWrite(5,HIGH);
-        //send_wait_for_resp(ControlData);
-        //return ;
-     }
+  }
 
 	//radio.startListening();                                    // Now, continue listening-
 	Serial.print(F("Sent Key: "));
@@ -346,29 +324,5 @@ void send_wait_for_resp(struct dataStruct &ControlData)
 
 	}
 	Serial.println(F(" "));
-	/*
-	unsigned long started_waiting_at = micros();               // Set up a timeout period, get the current microseconds
-	boolean timeout = false;                                   // Set up a variable to indicate if a response was received or not
-				
-	while ( ! radio.available() ){                             // While nothing is received
-		if (micros() - started_waiting_at > 200000 ){            // If waited longer than 200ms, indicate timeout and exit while loop
-			timeout = true;
-			break;
-		}      
-	}
-			
-	if ( timeout ){    // Describe the results
-		Serial.println(F("Failed, response timed out."));
-	}else{ // Grab the response, compare, and send to debugging spew
-		  radio.read( &RespData, sizeof(RespData) );
-		  unsigned long time = micros();
-		  Serial.print(RespData._micros);
-		  Serial.print(F(", Round-trip delay "));
-		  Serial.print(time-RespData._micros);
-		  Serial.print(F(" Comm Value "));
-		  Serial.println(RespData.comm);
-	}
-
-  delay(500);
-  */
+	
 }
