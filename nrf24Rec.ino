@@ -35,7 +35,6 @@ bool role = 0;
 */
 struct dataStruct{
   unsigned long _micros;
-  //int base_speed;
   int control_key;
   int value;
   
@@ -53,9 +52,6 @@ void setup() {
   pinMode(RightMotorForward, OUTPUT);  // initialize the  pin as an output.
 
   Serial.begin(9600);
-  Serial.println(F("RF24/examples/GettingStarted_HandlingData"));
-  Serial.println(F("*** PRESS 'T' to begin transmitting to the other node"));
-  
   radio.begin();
 
   // Set the PA Level low to prevent power supply related issues since this is a
@@ -78,19 +74,7 @@ void setup() {
 
 void loop() {
   Serial.flush();
-  //radio.flush_tx();
-  /*if (base_speed>0){
-   digitalWrite(RightMotorForward, HIGH); // turn the Right Motor ON
-   digitalWrite(LeftMotorForward, HIGH);   // turn the Left Motor ON
-  }
-  else{
-   digitalWrite(RightMotorForward, LOW); // turn the Right Motor ON
-   digitalWrite(LeftMotorForward, LOW);   // turn the Left Motor ON
-  }
-  */
-  
-  //analogWrite(EnableMotorLeft, base_speed);
-  //analogWrite(EnableMotorRight, base_speed+20);
+ 
   if ( role == 0 )
   {
     
@@ -102,14 +86,11 @@ void loop() {
       }
      
       radio.stopListening(); // First, stop listening so we can talk  
-      //if (ControlData.control_key == 6 && ControlData.base_speed == prevBaseSpeed )
-      //  return;
-            
+           
       parse_do(ControlData);
 	 
       RespData.comm += 0.01;// Increment the float value
       RespData._micros=micros();
-      //radio.write( &RespData, sizeof(RespData) );              // Send the final one back.      
       
       radio.startListening();                              // Now, resume listening so we catch the next packets.     
       
@@ -125,17 +106,16 @@ void loop() {
       Serial.print(RespData._micros);  
       Serial.print(F(" : "));
       Serial.println(RespData.comm);
-      //delay(50);
    }
  }
 }
 
 void parse_do(struct dataStruct &RecData)
 {
-	//delay(50);
 	switch(RecData.control_key){
 		case 6: // speed control, PWM'ing the enable pin for both motors
-		        break;
+		        break; // was giving me errors so I blocked it
+		        /*
                          int oldBsp;
                          oldBsp=base_speed;
                         base_speed=RecData.value;
@@ -148,6 +128,7 @@ void parse_do(struct dataStruct &RecData)
 			analogWrite(EnableMotorRight, RecData.value);
 			
 			break;
+			*/
 
 		case 9: // turn left, lower speed of left wheel
 			analogWrite(EnableMotorLeft, base_speed-RecData.value);
@@ -167,5 +148,5 @@ void parse_do(struct dataStruct &RecData)
 			digitalWrite(LeftMotorForward, LOW);   // turn the Left Motor OFF
 			break;
 	}
-  //delay(50);
+  
 }
